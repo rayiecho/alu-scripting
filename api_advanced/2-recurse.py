@@ -9,21 +9,16 @@ def recurse(subreddit, hot_list=[], after=None):
     Uses Reddit's pagination ('after') and calls itself for each page.
     Returns None if the subreddit is invalid or has no results.
     """
-    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    url = "https://www.reddit.com/r/{}/hot.json?limit=100".format(subreddit)
+    if after:
+        url += "&after={}".format(after)
     headers = {
         "User-Agent": "linux:alu-scripting.api_advanced:v1.0 (by /u/ayiecho)"
     }
-    params = {"limit": 100}
-    if after:
-        params["after"] = after
-    try:
-        response = requests.get(url, headers=headers, params=params,
-                                allow_redirects=False, timeout=10)
-        if response.status_code != 200:
-            return hot_list if hot_list else None
-        data = response.json().get("data", {})
-    except Exception:
+    response = requests.get(url, headers=headers, allow_redirects=False)
+    if response.status_code != 200:
         return hot_list if hot_list else None
+    data = response.json().get("data", {})
     titles = [post.get("data", {}).get("title")
               for post in data.get("children", [])]
     hot_list = hot_list + titles

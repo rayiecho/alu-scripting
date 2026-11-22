@@ -20,23 +20,17 @@ def count_words(subreddit, word_list, after=None, counts=None):
     """
     if counts is None:
         counts = {word.lower(): 0 for word in word_list}
-    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    url = "https://www.reddit.com/r/{}/hot.json?limit=100".format(subreddit)
+    if after:
+        url += "&after={}".format(after)
     headers = {
         "User-Agent": "linux:alu-scripting.api_advanced:v1.0 (by /u/ayiecho)"
     }
-    params = {"limit": 100}
-    if after:
-        params["after"] = after
-    try:
-        response = requests.get(url, headers=headers, params=params,
-                                allow_redirects=False, timeout=10)
-        if response.status_code != 200:
-            print_counts(counts, word_list)
-            return
-        data = response.json().get("data", {})
-    except Exception:
+    response = requests.get(url, headers=headers, allow_redirects=False)
+    if response.status_code != 200:
         print_counts(counts, word_list)
         return
+    data = response.json().get("data", {})
     for post in data.get("children", []):
         title = post.get("data", {}).get("title", "")
         for word in title.lower().split():
