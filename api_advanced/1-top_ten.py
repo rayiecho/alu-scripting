@@ -8,11 +8,13 @@ def top_ten(subreddit):
 
     If the subreddit is invalid, print None.
     """
-    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
     headers = {
         "User-Agent": "linux:alu-scripting.api_advanced:v1.0 (by /u/ayiecho)"
     }
-    response = requests.get(url, headers=headers, allow_redirects=False)
+    params = {"limit": 10}
+    response = requests.get(url, headers=headers, params=params,
+                            allow_redirects=False)
     if response.status_code != 200:
         print(None)
         return
